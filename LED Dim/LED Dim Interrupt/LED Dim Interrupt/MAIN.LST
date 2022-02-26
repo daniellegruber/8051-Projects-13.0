@@ -1,0 +1,72 @@
+MAIN                                                                                                          PAGE 1
+
+                       1    $MOD51                                                          ; 8051 definitions for Metal
+                                                                               ink assembler
+                       2    
+  0090                 3    LED                     EQU             P1.0                    ; LED connected to P1.0
+  00B0                 4    FLAG            EQU             P3.0
+  00FC                 5    LOW_TH          EQU             0FCH                    ; Define timer value for low part of
+                                                                                pulse
+  0066                 6    LOW_TL          EQU             66H                             
+  00FE                 7    HIGH_TH         EQU             0FEH                    ; Define timer value for high part o
+                                                                               f pulse
+  0033                 8    HIGH_TL         EQU             33H
+                       9    
+0000                  10    ORG             0000H
+0000 802E             11    SJMP    MAIN
+                      12    
+001B                  13    ORG             001BH                                           ; Timer 1 interrupt vector t
+                                                                               able
+001B 8039             14    SJMP    ISR_T1                                          ; Jump to ISR
+                      15    
+0030                  16    ORG             0030H                                           ; After vector table
+0030 758910           17    MAIN:   MOV             TMOD,   #10H            ; Timer 1, mode 1
+0033 75A888           18                    MOV             IE,             #88H            ; Enable Timer 1 interrupt
+                      19    
+0036 D2B0             20    LOW_PULSE:      SETB    FLAG
+0038 C290             21                            CLR             LED
+003A 758B66           22                            MOV             TL1,    #LOW_TL         ; Low byte
+003D 758DFC           23                            MOV     TH1,    #LOW_TH         ; High byte
+0040 D28E             24                            SETB    TR1                                     ; Start Timer 1
+0042 20B0FD           25                            JB              FLAG,   $                               ; Loop while
+                                                                                waiting for an interrupt
+                      26                            
+0045 D2B0             27    HIGH_PULSE:     SETB    FLAG
+0047 D290             28                            SETB    LED
+0049 758B33           29                            MOV             TL1,    #HIGH_TL        ; Low byte
+004C 758DFE           30                            MOV     TH1,    #HIGH_TH        ; High byte
+004F D28E             31                            SETB    TR1                                     ; Start Timer 1
+0051 20B0FD           32                            JB              FLAG,   $                               ; Loop while
+                                                                                waiting for an interrupt
+0054 80E0             33                            SJMP    LOW_PULSE
+                      34                                                                                    
+0056 C2B0             35    ISR_T1:         CLR     FLAG
+0058 C28E             36                            CLR             TR1                             ; Stop Timer 1
+                      37                            ;CPL    LED                             ; Complement LED pin to togg
+                                                                               le high, low
+005A 32               38                            RETI                                    ; Return from interrupt to w
+                                                                               here program came from
+                      39                    
+                      40                    
+                      41    END
+
+VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
+MAIN                                                                                                          PAGE 2
+
+FLAG . . . . . . . . . . . . . .    NUMB  00B0H  
+HIGH_PULSE . . . . . . . . . . .  C ADDR  0045H  NOT USED  
+HIGH_TH. . . . . . . . . . . . .    NUMB  00FEH  
+HIGH_TL. . . . . . . . . . . . .    NUMB  0033H  
+IE . . . . . . . . . . . . . . .  D ADDR  00A8H  PREDEFINED  
+ISR_T1 . . . . . . . . . . . . .  C ADDR  0056H  
+LED. . . . . . . . . . . . . . .    NUMB  0090H  
+LOW_PULSE. . . . . . . . . . . .  C ADDR  0036H  
+LOW_TH . . . . . . . . . . . . .    NUMB  00FCH  
+LOW_TL . . . . . . . . . . . . .    NUMB  0066H  
+MAIN . . . . . . . . . . . . . .  C ADDR  0030H  
+P1 . . . . . . . . . . . . . . .  D ADDR  0090H  PREDEFINED  
+P3 . . . . . . . . . . . . . . .  D ADDR  00B0H  PREDEFINED  
+TH1. . . . . . . . . . . . . . .  D ADDR  008DH  PREDEFINED  
+TL1. . . . . . . . . . . . . . .  D ADDR  008BH  PREDEFINED  
+TMOD . . . . . . . . . . . . . .  D ADDR  0089H  PREDEFINED  
+TR1. . . . . . . . . . . . . . .  B ADDR  008EH  PREDEFINED  

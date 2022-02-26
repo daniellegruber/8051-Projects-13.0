@@ -1,0 +1,59 @@
+MAIN                                                                                                          PAGE 1
+
+                       1    $MOD51                                                          ; 8051 definitions for Metal
+                                                                               ink assembler
+                       2    
+  0090                 3    LED                     EQU             P1.0                    ; LED connected to P1.0
+  00FC                 4    LOW_TH          EQU             0FCH                    ; Define timer value for low part of
+                                                                                pulse
+  0066                 5    LOW_TL          EQU             66H                             
+  00FE                 6    HIGH_TH         EQU             0FEH                    ; Define timer value for high part o
+                                                                               f pulse
+  0033                 7    HIGH_TL         EQU             33H                             
+                       8    
+0030                   9    ORG             0030H
+                      10    
+0030 758910           11    MOV     TMOD,   #10H                                    ; Timer 1, mode 1
+                      12    
+0033                  13    MAIN:   
+                      14    
+0033 C290             15    LOW_PULSE:      CLR     LED
+0035 758B66           16                            MOV     TL1,    #LOW_TL         ; Low byte
+0038 758DFC           17                            MOV TH1,        #LOW_TH         ; High byte
+003B 1149             18                            ACALL           TIMER           ; Call TIMER subroutine
+                      19                            
+003D D290             20    HIGH_PULSE:     SETB    LED
+003F 758B33           21                            MOV     TL1,    #HIGH_TL        ; Low byte
+0042 758DFE           22                            MOV TH1,        #HIGH_TH        ; High byte
+0045 1149             23                            ACALL           TIMER           ; Call TIMER subroutine
+0047 80EA             24                            SJMP            MAIN
+                      25                                                                                    
+0049 D28E             26    TIMER:          SETB    TR1
+004B 308FFB           27                            JNB             TF1,    TIMER   ; Stay until timer rolls over
+004E C28E             28                            CLR             TR1                             ; Stop Timer 1
+0050 C28F             29                            CLR             TF1                             ; Clear Timer 1 flag
+                                                                               
+0052 22               30                            RET                                             ; Reload timer since
+                                                                                Mode 1 isn't auto-reloaded
+                      31                    
+                      32                    
+                      33    END
+
+VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
+MAIN                                                                                                          PAGE 2
+
+HIGH_PULSE . . . . . . . . . . .  C ADDR  003DH  NOT USED  
+HIGH_TH. . . . . . . . . . . . .    NUMB  00FEH  
+HIGH_TL. . . . . . . . . . . . .    NUMB  0033H  
+LED. . . . . . . . . . . . . . .    NUMB  0090H  
+LOW_PULSE. . . . . . . . . . . .  C ADDR  0033H  NOT USED  
+LOW_TH . . . . . . . . . . . . .    NUMB  00FCH  
+LOW_TL . . . . . . . . . . . . .    NUMB  0066H  
+MAIN . . . . . . . . . . . . . .  C ADDR  0033H  
+P1 . . . . . . . . . . . . . . .  D ADDR  0090H  PREDEFINED  
+TF1. . . . . . . . . . . . . . .  B ADDR  008FH  PREDEFINED  
+TH1. . . . . . . . . . . . . . .  D ADDR  008DH  PREDEFINED  
+TIMER. . . . . . . . . . . . . .  C ADDR  0049H  
+TL1. . . . . . . . . . . . . . .  D ADDR  008BH  PREDEFINED  
+TMOD . . . . . . . . . . . . . .  D ADDR  0089H  PREDEFINED  
+TR1. . . . . . . . . . . . . . .  B ADDR  008EH  PREDEFINED  
