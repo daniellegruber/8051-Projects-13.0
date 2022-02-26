@@ -26,6 +26,7 @@ HIGH_PULSE:	SETB	LED
 TIMER:		SETB	TR1
 			JNB		TF1,	TIMER	; Stay until timer rolls over
 			CLR		TR1				; Stop Timer 1
+			;CPL		LED				; Complement LED pin to toggle high, low
 			CLR		TF1				; Clear Timer 1 flag
 			RET						; Reload timer since Mode 1 isn't auto-reloaded
 		

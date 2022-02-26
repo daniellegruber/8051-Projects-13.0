@@ -4,7 +4,8 @@
                                                                                ink assembler
                        2    
   0090                 3    LED                     EQU             P1.0                    ; LED connected to P1.0
-  00B0                 4    FLAG            EQU             P3.0
+  00B0                 4    FLAG            EQU             P3.0                    ; Flag to remain in loop while timer
+                                                                                counts
   00FC                 5    LOW_TH          EQU             0FCH                    ; Define timer value for low part of
                                                                                 pulse
   0066                 6    LOW_TL          EQU             66H                             
@@ -28,16 +29,16 @@
 003A 758B66           22                            MOV             TL1,    #LOW_TL         ; Low byte
 003D 758DFC           23                            MOV     TH1,    #LOW_TH         ; High byte
 0040 D28E             24                            SETB    TR1                                     ; Start Timer 1
-0042 20B0FD           25                            JB              FLAG,   $                               ; Loop while
-                                                                                waiting for an interrupt
+0042 20B0FD           25                            JB              FLAG,   $                       ; Loop while waiting
+                                                                                for an interrupt
                       26                            
 0045 D2B0             27    HIGH_PULSE:     SETB    FLAG
 0047 D290             28                            SETB    LED
 0049 758B33           29                            MOV             TL1,    #HIGH_TL        ; Low byte
 004C 758DFE           30                            MOV     TH1,    #HIGH_TH        ; High byte
 004F D28E             31                            SETB    TR1                                     ; Start Timer 1
-0051 20B0FD           32                            JB              FLAG,   $                               ; Loop while
-                                                                                waiting for an interrupt
+0051 20B0FD           32                            JB              FLAG,   $                       ; Loop while waiting
+                                                                                for an interrupt
 0054 80E0             33                            SJMP    LOW_PULSE
                       34                                                                                    
 0056 C2B0             35    ISR_T1:         CLR     FLAG

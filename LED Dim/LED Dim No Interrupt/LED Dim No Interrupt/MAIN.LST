@@ -31,13 +31,15 @@
 0049 D28E             26    TIMER:          SETB    TR1
 004B 308FFB           27                            JNB             TF1,    TIMER   ; Stay until timer rolls over
 004E C28E             28                            CLR             TR1                             ; Stop Timer 1
-0050 C28F             29                            CLR             TF1                             ; Clear Timer 1 flag
+                      29                            ;CPL            LED                             ; Complement LED pin
+                                                                                to toggle high, low
+0050 C28F             30                            CLR             TF1                             ; Clear Timer 1 flag
                                                                                
-0052 22               30                            RET                                             ; Reload timer since
+0052 22               31                            RET                                             ; Reload timer since
                                                                                 Mode 1 isn't auto-reloaded
-                      31                    
                       32                    
-                      33    END
+                      33                    
+                      34    END
 
 VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
 MAIN                                                                                                          PAGE 2
