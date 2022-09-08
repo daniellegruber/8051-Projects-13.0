@@ -1,0 +1,41 @@
+MAIN                                                                                                          PAGE 1
+
+                       1    $MOD51  ; This includes 8051 definitions for the Metalink assembler
+                       2    
+  0090                 3    LED     BIT     P1.0
+                       4    ;--------------------------------------------
+0000                   5    ORG     00H
+0000 759000            6    MOV             P1,     #00H                    ; Configure Port 1 as output port
+                       7    ;--------------------------------------------
+0003                   8    MAIN:
+0003 D290              9            SETB    LED
+0005 110D             10            ACALL   DELAY
+0007 C290             11            CLR             LED
+0009 110D             12            ACALL   DELAY
+000B 80F6             13            SJMP    MAIN
+                      14    
+                      15    ;-------------------------------------------
+                      16    
+000D                  17    DELAY:                                          ; Define DELAY subroutine
+000D 7C06             18            MOV             R4,             #6              ; Load R4 with #6
+                      19    
+000F                  20    DL1:                                            ; Define DL1 process
+000F 7BFF             21            MOV             R3,             #255    ; Load R3 with #255
+0011 DBFE             22            DJNZ    R3,             $               ; Decrement R3 until 0
+                      23            
+0013 DCFA             24            DJNZ    R4,     DL1             ; Decrement R4 until 0, if not 0 repeat DL1
+                      25    
+0015 22               26            RET                                             ; Return to location of call in prog
+                                                                               ram
+                      27    ;--------------------------------------------
+                      28    
+                      29    END
+
+VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
+MAIN                                                                                                          PAGE 2
+
+DELAY. . . . . . . . . . . . . .  C ADDR  000DH  
+DL1. . . . . . . . . . . . . . .  C ADDR  000FH  
+LED. . . . . . . . . . . . . . .  B ADDR  0090H  
+MAIN . . . . . . . . . . . . . .  C ADDR  0003H  
+P1 . . . . . . . . . . . . . . .  D ADDR  0090H  PREDEFINED  
