@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ASCII"?>
+<MCUWorkspace Schema="66" Class="CMCUWorkspace" Path="" PathAbs="" MCUType="1" ActiveProjectIndex="0">
+<MCUProjects>
+<ProjectItem ProjectPath="&amp;ASCLCD Hello World V2\LCD Hello World V2.mcuprj" ProjectPathAbs="&amp;ASCC:\Users\danie\Documents\GitHub\8051-Projects-13.0\LCD Hello World V2\LCD Hello World V2\LCD Hello World V2.mcuprj"/>
+</MCUProjects>
+</MCUWorkspace>
