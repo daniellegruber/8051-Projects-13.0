@@ -4,13 +4,14 @@ $MOD51				; This includes 8051 definitions for the Metalink assembler
 RS		EQU 	P0.0	; Register select: selects command register when low, data register when high
 RW		EQU	P0.1	; Read/write: low to write to the register, high to read from the register
 EN		EQU 	P0.2	; Enable: sends data to data pins when a high to low pulse is given
-DATA_PORT	EQU 	P2	; Define input port
+DATA_PORT	EQU 	P2	; Define data port
 
 NBYTES		EQU	R0	; Use R0 for defining # bytes in data and commands
 BYTE_IDX	EQU	R1	; Use R1 for tracking byte idx when looping through bytes
 
 
 ORG 	0H
+MOV		DATA_PORT,	#00H			; Configure data port as output port
 
 ; Initialize LCD
 INIT:
