@@ -1,0 +1,25 @@
+ULTIBOARD DRILL REPORT
+
+Design: LCD Hello World V4_1
+
+DRILL FILE SETTINGS
+Excellon 2, Absolute, Inch, 2.4 
+
+
+DEFINITION COPPER LAYERS
+Copper Top
+Copper Bottom
+
+
+--------------------------------------------------------------------
+
+DRILLFILE                                             LAMINATION
+LCD Hello World V4_1 - Copper Top-Copper Bottom.drl   Copper Top .. Copper Bottom
+
+TOOL     SIZE   TYPE  COUNT
+   1   0.0394    PTH     50
+   2   0.0236    PTH     17
+   3   0.0350    PTH     40
+   4   0.0400    PTH     40
+   5   0.0354    PTH     18
+   6   0.0315    PTH      3
