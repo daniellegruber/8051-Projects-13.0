@@ -1,0 +1,65 @@
+MAIN                                                                                                          PAGE 1
+
+                       1    $MOD51  ; This includes 8051 definitions for the Metalink assembler
+                       2    ;calls a time delay before sending next data/command
+                       3    ;P2.0-P2.7 are connected to LCD data pins D0-D7
+                       4    ;P0.0 is connected to RS pin of LCD
+                       5    ;P0.1 is connected to R/W pin of LCD
+                       6    ;P0.2 is connected to E pin of LCD
+0000                   7    ORG   0H
+0000 7438              8    MOV   A,#38H;INIT. LCD 2 LINES, 5X7 MATRIX
+0002 112A              9    ACALL COMNWRT ;call command subroutine
+0004 1144             10    ACALL DELAY   ;give LCD some time
+0006 740E             11    MOV   A,#0EH  ;display on, cursor on
+0008 112A             12    ACALL COMNWRT ;call command subroutine
+000A 1144             13    ACALL DELAY   ;give LCD some time
+000C 7401             14    MOV   A,#01       ;clear LCD
+000E 112A             15    ACALL COMNWRT ;call command subroutine
+0010 1144             16    ACALL DELAY   ;give LCD some time
+0012 7406             17    MOV   A,#06H  ;shift cursor right
+0014 112A             18    ACALL COMNWRT ;call command subroutine
+0016 1144             19    ACALL DELAY   ;give LCD some time
+0018 7484             20    MOV   A,#84H;cursor at line 1, pos. 4
+001A 112A             21    ACALL COMNWRT ;call command subroutine
+001C 1144             22    ACALL DELAY   ;give LCD some time
+001E 744E             23    MOV   A,#'N'   ;display letter N
+0020 1137             24    ACALL DATAWRT  ;call display subroutine
+0022 1144             25    ACALL DELAY    ;give LCD some time
+0024 744F             26    MOV   A,#'O'    ;display letter O
+0026 1137             27    ACALL DATAWRT  ;call display subroutine
+0028 80FE             28    AGAIN:  SJMP  AGAIN    ;stay here
+002A                  29    COMNWRT:               ;send command to LCD
+002A F5A0             30    MOV   P2,A     ;copy reg A to port 1
+002C C280             31    CLR   P0.0     ;RS=0 for command
+002E C281             32    CLR   P0.1     ;R/W=0 for write
+0030 D282             33    SETB  P0.2     ;E=1 for high pulse
+0032 1144             34    ACALL DELAY    ;give LCD some time
+0034 C282             35    CLR   P0.2     ;E=0 for H-to-L pulse
+0036 22               36    RET
+0037                  37    DATAWRT:               ;write data to LCD
+0037 F5A0             38    MOV   P2,A     ;copy reg A to port 1
+0039 D280             39    SETB  P0.0     ;RS=1 for data
+003B C281             40    CLR   P0.1     ;R/W=0 for write
+003D D282             41    SETB  P0.2     ;E=1 for high pulse
+003F 1144             42    ACALL DELAY    ;give LCD some time
+0041 C282             43    CLR   P0.2     ;E=0 for H-to-L pulse
+0043 22               44    RET
+0044 7B32             45    DELAY:  MOV   R3,#50   ;50 or higher for fast CPUs
+0046 7CFF             46    HERE2:  MOV   R4,#255  ;R4 = 255
+0048 DCFE             47    HERE:   DJNZ  R4,HERE  ;stay until R4 becomes 0
+004A DBFA             48    DJNZ  R3,HERE2
+004C 22               49    RET
+                      50    
+                      51    END
+
+VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
+MAIN                                                                                                          PAGE 2
+
+AGAIN. . . . . . . . . . . . . .  C ADDR  0028H  
+COMNWRT. . . . . . . . . . . . .  C ADDR  002AH  
+DATAWRT. . . . . . . . . . . . .  C ADDR  0037H  
+DELAY. . . . . . . . . . . . . .  C ADDR  0044H  
+HERE . . . . . . . . . . . . . .  C ADDR  0048H  
+HERE2. . . . . . . . . . . . . .  C ADDR  0046H  
+P0 . . . . . . . . . . . . . . .  D ADDR  0080H  PREDEFINED  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
