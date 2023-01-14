@@ -1,0 +1,297 @@
+MAIN                                                                                                          PAGE 1
+
+                       1    $MOD51  ; This includes 8051 definitions for the Metalink assembler
+                       2    
+                       3    ;-------------- Define Statements -----------------------
+                       4    ;P2.0-P2.7 are connected to LCD data poins D0-D7
+                       5    ;P0.0 is connected to RS pin of LCD
+                       6    ;P0.1 is connected to R/W pin of LCD
+                       7    ;P0.2 is connected to E pin of LCD      
+                       8    
+  0080                 9    RS                      EQU             P0.0
+  0081                10    RW                      EQU             P0.1
+  0082                11    E                       EQU             P0.2
+  00A0                12    DATA_PORT       EQU             P2
+  00A7                13    BF                      EQU             P2.7
+                      14    
+                      15    ;-------------- Program Start ---------------------------
+0000                  16                    ORG             00H
+0000 8033             17                    SJMP    SETUP
+                      18                    
+                      19    ;-------------- Interrupt Vector Table ------------------               
+                      20    ;--
+                      21    ;--     ISR for External Hardware Interrupt 0 (INT0), (Pin P3.2 or Pin 12)
+                      22    ;               ORG             03H     ;External Hardware Interrupt 0 vector table
+                      23    ;               SJMP    ISR_EHI0 ;jump to Interrupt Service Routine (ISR)
+                      24    ;--
+                      25    ;-- ISR for Timer 0 (TF0)
+                      26                    ;ORG            0BH     ;Timer 0 interrupt vector table
+                      27                    ;SJMP   ISR_T0  ;jump to Interrupt Service Routine (ISR)
+                      28    ;--
+                      29    ;--     ISR for External Hardware Interrupt 1 (INT1), (Pin P3.3 or Pin 13)
+                      30    ;               ORG             13H     ;External Hardware Interrupt 1 vector table
+                      31    ;               SJMP    ISR_EHI1 ;jump to Interrupt Service Routine (ISR)
+                      32    ;--
+                      33    ;-- ISR for Timer 1 (TF1)
+                      34                    ;ORG            1BH     ;Timer 1 interrupt vector table
+                      35                    ;SJMP   ISR_T1  ;jump to Interrupt Service Routine (ISR)
+                      36    ;--
+                      37    ;--     ISR for Serial COM Interrupt (RI and TI)
+                      38    ;               ORG             23H     ;Serial COM Interrupt vector table
+                      39    ;               SJMP    ISR_Ser ;jump to Interrupt Service Routine (ISR)
+                      40    
+0030                  41                    ORG             30H             ;after Interrupt vector table
+                      42    ;-------------- Interrupt Handlers ----------------------
+0030                  43    INT_0:
+0030 32               44            RETI
+0031                  45    TF_0:
+0031 32               46            RETI
+0032                  47    INT_1:
+0032 32               48            RETI
+0033                  49    TF_1:
+0033 32               50            RETI
+0034                  51    SER:
+0034 32               52            RETI
+                      53            
+                      54    ;-------------- Set Up ----------------------------------       
+                      55            
+0035                  56    SETUP:
+0035 75A000           57                    MOV             DATA_PORT,#00H  ;Make P2 an output port
+0038 758000           58                    MOV             P0,#00H ;Make P0 an output port
+MAIN                                                                                                          PAGE 2
+
+003B                  59    LCD_1:  
+                      60                    ;DB             "HELLO", 0
+003B 48454C4C         61                    DB      'HELLO', 0
+003F 4F00       
+0041                  62    LCD_2:  
+                      63                    ;DB             "WORLD", 0
+0041 574F524C         64                    DB      'WORLD', 0
+0045 4400       
+                      65                            
+                      66                    
+                      67            ;Interrupt Enable - IE
+                      68            ;D7                                                                                 
+                                                                                                           D0
+                      69            ;EA                             --                      ET2                     ES  
+                                                                                                   ET1(P3.3)       EX1(e
+                                                                               dge:SETB TCON.2)   ET0(P3.2)       EX0(ed
+                                                                               ge:SETB TCON.0)
+                      70            ;Enable All             Not Used        Not 8051        Serial          Timer 1     
+                                                                                   Ext Int 1                            
+                                                                                  Timer 0         Ext Int 0
+0047 75A880           71            MOV             IE,#10000000B   ;Enable Interrupts To Be Turned On
+                      72            
+                      73            ;Timer Control - TCON
+                      74            ;Timer--------------------------------------------------------------    Interrupts -
+                                                                               -----------------------------------------
+                                                                               -------------------------
+                      75            ;D7                                                                                 
+                                                                                                                        
+                                                                                      D0
+                      76            ;TCON.7                         TCON.6                  TCON.5                      
+                                                                                   TCON.4                  TCON.3       
+                                                                                                  TCON.2                
+                                                                                         TCON.1                         
+                                                                                TCON.0
+                      77            ;TF1(overflow flag)     TR1(Run Cont)   TF0(overflow flag)      TR0(Run Cont)   IE1(
+                                                                               flag edge H->L)     IT1(edge=1,level=0)  
+                                                                                  IE0(flag edge H->L)     IT0(edge=1,lev
+                                                                               el=0)
+004A 758805           78            MOV             TCON,#00000101B ;Make external interrupts H->L edge triggered       
+                                                                                   
+                      79    
+                      80    ;-------------- Main Program ----------------------------
+                      81    
+004D                  82    MAIN:   
+004D 1179             83                    ACALL   INIT_LCD
+                      84                    
+004F 7485             85                    MOV             A,#85H          ;Cursor: line 1, pos. 5
+0051 1198             86                    ACALL   COMMAND
+0053 11D4             87                    ACALL   DELAY
+0055 90003B           88                    MOV             DPTR,#LCD_1     ;Load ROM Pointer
+0058                  89    WORD1:          
+0058 E4               90                    CLR             A
+0059 93               91                    MOVC    A,@A+DPTR
+005A 6007             92                    JZ              NEXTWORD
+005C 11A6             93                    ACALL   DATA_DISPLAY
+005E 11D4             94                    ACALL   DELAY
+0060 A3               95                    INC             DPTR
+0061 80F5             96                    SJMP    WORD1           
+MAIN                                                                                                          PAGE 3
+
+0063                  97    NEXTWORD:               
+0063 74C5             98                    MOV             A,#0C5H         ;Cusor: line 2, pos. 5
+0065 1198             99                    ACALL   COMMAND
+0067 11D4            100                    ACALL   DELAY
+0069 900041          101                    MOV             DPTR,#LCD_2
+006C                 102    WORD2:          
+006C E4              103                    CLR             A
+006D 93              104                    MOVC    A,@A+DPTR
+006E 6007            105                    JZ              HERE
+0070 11A6            106                    ACALL   DATA_DISPLAY
+0072 11D4            107                    ACALL   DELAY
+0074 A3              108                    INC             DPTR
+0075 80F5            109                    SJMP    WORD2
+                     110    
+0077 80FE            111    HERE:   SJMP    HERE            ;Stay here
+                     112    
+                     113    ;-------------- LCD routines ---------------------------
+                     114    
+0079                 115    INIT_LCD:
+0079 75F028          116                    MOV             B,#40
+007C 11C4            117                    ACALL   DELAY_mS        ;40mS Delay
+007E 7438            118                    MOV             A,#38H          ;Init LCD 2 Lines, 5x8 matrix
+0080 1198            119                    ACALL   COMMAND
+0082 740E            120                    MOV             A,#0EH          ;LCD on, cursor on
+0084 1198            121                    ACALL   COMMAND
+0086 7401            122                    MOV             A,#01H          ;clear LCD command
+0088 1198            123                    ACALL   COMMAND
+008A 7406            124                    MOV             A,#06H          ;shift cursor right
+008C 1198            125                    ACALL   COMMAND
+008E 22              126                    RET
+                     127                    
+008F                 128    READY:
+008F D2A7            129                    SETB    BF              ;Make P2.7 input pin
+0091 C280            130                    CLR             RS
+0093 D281            131                    SETB    RW
+                     132                    ;SETB   E
+0095                 133    BACK:
+                     134                    ;CLR            E
+                     135                    ;SETB   E
+                     136                    ;JB             BF, BACK
+                     137                    ;NOP
+                     138                    ;CLR    E
+0095 11D4            139                    ACALL   DELAY
+0097 22              140                    RET             
+                     141                    
+0098                 142    COMMAND:                                        ;Write Command
+0098 118F            143                    ACALL   READY           ;Is LCD ready?
+009A F5A0            144                    MOV             DATA_PORT, A
+009C C280            145                    CLR             RS
+009E C281            146                    CLR             RW
+00A0 D282            147                    SETB    E
+00A2 00              148                    NOP
+00A3 C282            149                    CLR             E
+00A5 22              150                    RET
+                     151    
+00A6                 152    DATA_DISPLAY:                           ;Write Display
+00A6 118F            153                    ACALL   READY           ;Is LCD ready?
+00A8 F5A0            154                    MOV             DATA_PORT, A
+MAIN                                                                                                          PAGE 4
+
+00AA D280            155                    SETB    RS
+00AC C281            156                    CLR             RW
+00AE D282            157                    SETB    E
+00B0 00              158                    NOP                                     ;1.085uS Delay ... was originally 55
+                                                                               3.35uS
+00B1 C282            159                    CLR             E
+00B3 22              160                    RET
+                     161                    
+                     162    ;-------------- Delay routines ---------------------------
+                     163    
+                     164    ;-------------- Delay in seconds ------------------------
+                     165    ;(255*255*7*B*2.17uS)+2.17uS+2.17uS = 0.987734 seconds
+                     166    ; B=1 -> 0.987734 seconds
+                     167    ; B=2 -> 1.975468 seconds
+                     168    
+00B4                 169    DELAY_s:
+00B4                 170    S4:
+00B4 7B07            171            MOV R3,#7
+00B6                 172    S3:
+00B6 7AFF            173            MOV R2,#255
+00B8                 174    S2:     
+00B8 79FF            175            MOV R1,#255
+00BA                 176    S1:
+00BA D9FE            177            DJNZ R1, S1
+00BC DAFA            178            DJNZ R2, S2
+00BE DBF6            179            DJNZ R3, S3
+00C0 D5F0F1          180            DJNZ B, S4
+00C3 22              181            RET
+                     182    
+                     183    ;-------------- Delay in milli-seconds ------------------
+                     184    ; (5*92*B*2.17uS)+2.17uS+2.17uS = 1.000434mS if register B is 1
+                     185    ; B=1 -> 1.000434mS
+                     186    ; B=2 -> 2.000740mS
+                     187    
+                     188    ;Max delay is B=FF (255) for 255mS
+                     189    
+00C4                 190    DELAY_mS:
+00C4                 191    mS3:
+00C4 7B05            192            MOV R3,#5               ;2 Cycles
+00C6                 193    mS2:
+00C6 7A5C            194            MOV R2,#92              ;2 Cycles
+00C8                 195    mS1:    
+00C8 DAFE            196            DJNZ    R2,mS1  ;2 Cycles
+00CA DBFA            197            DJNZ    R3,mS2  ;2 Cycles
+00CC D5F0F5          198            DJNZ    B,mS3   ;2 Cycles
+00CF 22              199            RET
+                     200            
+                     201    ; uS delay is accomplished with NOP = 1.085uS
+                     202    ;-------------- Delay in micro-seconds ------------------
+                     203    ; (B*2.17uS)
+                     204    ; B=1 -> 2.17uS
+                     205    ; B=2 -> 4.34uS
+                     206    ; B=255 -> 553.39uS
+                     207    
+00D0                 208    DELAY_uS:
+00D0                 209    uS1:
+00D0 D5F0FD          210            DJNZ    B,uS1   ;2 Cycles
+00D3 22              211            RET
+MAIN                                                                                                          PAGE 5
+
+                     212    
+                     213    ; DELAY subroutine
+00D4 7BFF            214    DELAY:          MOV     R3,     #255    ; Load R3 with 255
+00D6 7C02            215    L2:             MOV     R4,     #2      ; Load R4 with 2
+00D8 DCFE            216    L1:             DJNZ    R4,     L1      ; Decrement R4, if not zero repeat L1
+00DA DBFA            217                    DJNZ    R3,     L2      ; Decrement R3, if not zero repeat L1
+00DC 22              218                    RET
+                     219    
+                     220    END
+
+VERSION 1.2k ASSEMBLY COMPLETE, 0 ERRORS FOUND
+MAIN                                                                                                          PAGE 6
+
+B. . . . . . . . . . . . . . . .  D ADDR  00F0H  PREDEFINED  
+BACK . . . . . . . . . . . . . .  C ADDR  0095H  NOT USED  
+BF . . . . . . . . . . . . . . .    NUMB  00A7H  
+COMMAND. . . . . . . . . . . . .  C ADDR  0098H  
+DATA_DISPLAY . . . . . . . . . .  C ADDR  00A6H  
+DATA_PORT. . . . . . . . . . . .    NUMB  00A0H  
+DELAY. . . . . . . . . . . . . .  C ADDR  00D4H  
+DELAY_MS . . . . . . . . . . . .  C ADDR  00C4H  
+DELAY_S. . . . . . . . . . . . .  C ADDR  00B4H  NOT USED  
+DELAY_US . . . . . . . . . . . .  C ADDR  00D0H  NOT USED  
+E. . . . . . . . . . . . . . . .    NUMB  0082H  
+HERE . . . . . . . . . . . . . .  C ADDR  0077H  
+IE . . . . . . . . . . . . . . .  D ADDR  00A8H  PREDEFINED  
+INIT_LCD . . . . . . . . . . . .  C ADDR  0079H  
+INT_0. . . . . . . . . . . . . .  C ADDR  0030H  NOT USED  
+INT_1. . . . . . . . . . . . . .  C ADDR  0032H  NOT USED  
+L1 . . . . . . . . . . . . . . .  C ADDR  00D8H  
+L2 . . . . . . . . . . . . . . .  C ADDR  00D6H  
+LCD_1. . . . . . . . . . . . . .  C ADDR  003BH  
+LCD_2. . . . . . . . . . . . . .  C ADDR  0041H  
+MAIN . . . . . . . . . . . . . .  C ADDR  004DH  NOT USED  
+MS1. . . . . . . . . . . . . . .  C ADDR  00C8H  
+MS2. . . . . . . . . . . . . . .  C ADDR  00C6H  
+MS3. . . . . . . . . . . . . . .  C ADDR  00C4H  
+NEXTWORD . . . . . . . . . . . .  C ADDR  0063H  
+P0 . . . . . . . . . . . . . . .  D ADDR  0080H  PREDEFINED  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
+READY. . . . . . . . . . . . . .  C ADDR  008FH  
+RS . . . . . . . . . . . . . . .    NUMB  0080H  
+RW . . . . . . . . . . . . . . .    NUMB  0081H  
+S1 . . . . . . . . . . . . . . .  C ADDR  00BAH  
+S2 . . . . . . . . . . . . . . .  C ADDR  00B8H  
+S3 . . . . . . . . . . . . . . .  C ADDR  00B6H  
+S4 . . . . . . . . . . . . . . .  C ADDR  00B4H  
+SER. . . . . . . . . . . . . . .  C ADDR  0034H  NOT USED  
+SETUP. . . . . . . . . . . . . .  C ADDR  0035H  
+TCON . . . . . . . . . . . . . .  D ADDR  0088H  PREDEFINED  
+TF_0 . . . . . . . . . . . . . .  C ADDR  0031H  NOT USED  
+TF_1 . . . . . . . . . . . . . .  C ADDR  0033H  NOT USED  
+US1. . . . . . . . . . . . . . .  C ADDR  00D0H  
+WORD1. . . . . . . . . . . . . .  C ADDR  0058H  
+WORD2. . . . . . . . . . . . . .  C ADDR  006CH  
